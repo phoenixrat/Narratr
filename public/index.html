@@ -3,61 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fish.audio Text-to-Speech</title>
+    <title>Narratr</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 222.2 47.4% 11.2%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 222.2 84% 4.9%;
+            --radius: 0.5rem;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
         }
-        textarea, select, button {
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea, select {
             width: 100%;
-            margin-bottom: 10px;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
         }
+
+        textarea:focus, select:focus {
+            outline: none;
+            border-color: hsl(var(--ring));
+            box-shadow: 0 0 0 2px hsla(var(--ring), 0.1);
+        }
+
+        button {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: hsl(var(--primary), 0.9);
+        }
+
         #audioPlayer {
-            display: none;
             width: 100%;
+            margin-top: 1.5rem;
         }
     </style>
 </head>
 <body>
-    <h1>Fish.audio Text-to-Speech</h1>
-    <textarea id="textInput" rows="5" placeholder="Enter text to convert to speech"></textarea>
-    <select id="modelSelect">
-        <option value="">Loading models...</option>
-    </select>
+    <h1>Narratr</h1>
+    <div class="input-group">
+        <label for="textInput">Enter text to convert to speech</label>
+        <textarea id="textInput" rows="5" placeholder="Type your text here..."></textarea>
+    </div>
+    <div class="input-group">
+        <label for="modelSelect">Select a voice model</label>
+        <select id="modelSelect">
+            <option value="">Choose a voice</option>
+            <option value="e58b0d7efca34eb38d5c4985e378abcb">Trump Voice</option>
+            <option value="c127723657e84bbf8e9ced55066bd80f">Male Deep Voice</option>
+            <option value="642ed7682ec246a485b6ce5f2153033c">Brimstone (Excited)</option>
+        </select>
+    </div>
     <button id="submitBtn">Generate Speech</button>
-    <audio id="audioPlayer" controls></audio>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
 
     <script>
-        async function fetchModels() {
-            try {
-                const response = await fetch('/models');
-                const data = await response.json();
-                const modelSelect = document.getElementById('modelSelect');
-                modelSelect.innerHTML = '';
-                data.items.forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model._id;
-                    option.textContent = model.title;
-                    modelSelect.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error fetching models:', error);
-                alert('Failed to load models. Please try again later.');
-            }
-        }
+        let isGenerating = false;
 
         async function generateSpeech() {
-            const text = document.getElementById('textInput').value;
-            const modelId = document.getElementById('modelSelect').value;
-            const audioPlayer = document.getElementById('audioPlayer');
+            if (isGenerating) return;
 
-            if (!text || !modelId) {
-                alert('Please enter text and select a model.');
+            const text = document.getElementById('textInput').value;
+            const modelSelect = document.getElementById('modelSelect');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const referenceId = modelSelect.value;
+
+            if (!text || !referenceId) {
+                alert('Please enter text and select a voice model.');
                 return;
             }
+
+            isGenerating = true;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Generating...';
 
             try {
                 const response = await fetch('/tts', {
@@ -67,10 +142,11 @@
                     },
                     body: JSON.stringify({
                         text: text,
-                        model_id: modelId,
+                        reference_id: referenceId,
                         format: 'mp3',
                         mp3_bitrate: 128,
-                        latency: 'normal'
+                        latency: 'normal',
+                        normalize: true
                     })
                 });
 
@@ -85,13 +161,25 @@
             } catch (error) {
                 console.error('Error generating speech:', error);
                 alert(`Failed to generate speech. Error: ${error.message}`);
+            } finally {
+                isGenerating = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate Speech';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchModels();
-            document.getElementById('submitBtn').addEventListener('click', generateSpeech);
-        });
+        function setupEventListeners() {
+            const submitBtn = document.getElementById('submitBtn');
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            submitBtn.addEventListener('click', generateSpeech);
+
+            // Remove any existing event listeners from the audio player
+            audioPlayer.removeEventListener('play', generateSpeech);
+            audioPlayer.removeEventListener('ended', generateSpeech);
+        }
+
+        document.addEventListener('DOMContentLoaded', setupEventListeners);
     </script>
 </body>
 </html>
