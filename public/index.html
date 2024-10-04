@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish.audio Text-to-Speech</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        textarea, select, button {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #audioPlayer {
+            display: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fish.audio Text-to-Speech</h1>
+    <textarea id="textInput" rows="5" placeholder="Enter text to convert to speech"></textarea>
+    <select id="modelSelect">
+        <option value="">Loading models...</option>
+    </select>
+    <button id="submitBtn">Generate Speech</button>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        async function fetchModels() {
+            try {
+                const response = await fetch('/models');
+                const data = await response.json();
+                const modelSelect = document.getElementById('modelSelect');
+                modelSelect.innerHTML = '';
+                data.items.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model._id;
+                    option.textContent = model.title;
+                    modelSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching models:', error);
+                alert('Failed to load models. Please try again later.');
+            }
+        }
+
+        async function generateSpeech() {
+            const text = document.getElementById('textInput').value;
+            const modelId = document.getElementById('modelSelect').value;
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            if (!text || !modelId) {
+                alert('Please enter text and select a model.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/tts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        model_id: modelId,
+                        format: 'mp3',
+                        mp3_bitrate: 128,
+                        latency: 'normal'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = 'block';
+            } catch (error) {
+                console.error('Error generating speech:', error);
+                alert(`Failed to generate speech. Error: ${error.message}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchModels();
+            document.getElementById('submitBtn').addEventListener('click', generateSpeech);
+        });
+    </script>
+</body>
+</html>
