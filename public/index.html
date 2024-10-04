@@ -3,116 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Narratr</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>VoiceWizard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        :root {
-            --background: 0 0% 100%;
-            --foreground: 222.2 84% 4.9%;
-            --card: 0 0% 100%;
-            --card-foreground: 222.2 84% 4.9%;
-            --popover: 0 0% 100%;
-            --popover-foreground: 222.2 84% 4.9%;
-            --primary: 222.2 47.4% 11.2%;
-            --primary-foreground: 210 40% 98%;
-            --secondary: 210 40% 96.1%;
-            --secondary-foreground: 222.2 47.4% 11.2%;
-            --muted: 210 40% 96.1%;
-            --muted-foreground: 215.4 16.3% 46.9%;
-            --accent: 210 40% 96.1%;
-            --accent-foreground: 222.2 47.4% 11.2%;
-            --destructive: 0 84.2% 60.2%;
-            --destructive-foreground: 210 40% 98%;
-            --border: 214.3 31.8% 91.4%;
-            --input: 214.3 31.8% 91.4%;
-            --ring: 222.2 84% 4.9%;
-            --radius: 0.5rem;
-        }
-
+        /* Custom styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: hsl(var(--background));
-            color: hsl(var(--foreground));
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
         }
-
-        h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
+        .gradient-bg {
+            background: linear-gradient(to bottom right, #EEF2FF, #E0E7FF);
         }
-
-        .input-group {
-            margin-bottom: 1.5rem;
+        .custom-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+        .premium-input {
+            border: 2px solid #E0E7FF;
+            transition: border-color 0.3s ease;
         }
-
-        textarea, select {
-            width: 100%;
-            padding: 0.5rem;
-            border-radius: var(--radius);
-            border: 1px solid hsl(var(--border));
-            background-color: hsl(var(--background));
-            color: hsl(var(--foreground));
-            font-size: 0.875rem;
-            transition: border-color 0.2s;
+        .premium-input:focus {
+            border-color: #6366F1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
         }
-
-        textarea:focus, select:focus {
-            outline: none;
-            border-color: hsl(var(--ring));
-            box-shadow: 0 0 0 2px hsla(var(--ring), 0.1);
+        .floating-label {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(79, 70, 229, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-
-        button {
-            background-color: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: hsl(var(--primary), 0.9);
-        }
-
-        #audioPlayer {
-            width: 100%;
-            margin-top: 1.5rem;
+        .floating-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
-    <h1>Narratr</h1>
-    <div class="input-group">
-        <label for="textInput">Enter text to convert to speech</label>
-        <textarea id="textInput" rows="5" placeholder="Type your text here..."></textarea>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4 sm:p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl custom-shadow p-6 sm:p-8 space-y-6">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 text-indigo-700">VoiceWizard</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label for="textInput" class="text-lg font-semibold mb-2 block text-indigo-900">Your text</label>
+                <textarea id="textInput" rows="5" placeholder="Type or paste your text here..." class="w-full resize-none premium-input rounded-md p-2 focus:outline-none"></textarea>
+            </div>
+
+            <div>
+                <label class="text-sm font-medium text-indigo-600 mb-2 block">Try with example text:</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="w-full h-auto py-2 px-3 text-sm text-left border border-indigo-200 hover:bg-indigo-50 transition-colors rounded-md premium-input" onclick="setExampleText('The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at least once.')">The quick brown fox...</button>
+                    <button class="w-full h-auto py-2 px-3 text-sm text-left border border-indigo-200 hover:bg-indigo-50 transition-colors rounded-md premium-input" onclick="setExampleText('To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take Arms against a Sea of troubles, And by opposing end them.')">To be, or not...</button>
+                </div>
+            </div>
+
+            <div>
+                <label for="modelSelect" class="text-sm font-medium text-indigo-900">Voice Model</label>
+                <select id="modelSelect" class="w-full mt-1 premium-input rounded-md p-2 focus:outline-none">
+                    <option value="">Select a voice model</option>
+                    <option value="e58b0d7efca34eb38d5c4985e378abcb">Trump Voice</option>
+                    <option value="c127723657e84bbf8e9ced55066bd80f">Male Deep Voice</option>
+                    <option value="642ed7682ec246a485b6ce5f2153033c">Brimstone (Excited)</option>
+                </select>
+            </div>
+
+            <button id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white transition-colors rounded-md py-2 px-4 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd" />
+                </svg>
+                Generate Magic Voice
+            </button>
+
+            <div class="mt-6 p-4 bg-indigo-50 rounded-lg">
+                <h2 class="text-lg font-semibold mb-2 flex items-center text-indigo-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+                    </svg>
+                    Your Magic Voice
+                </h2>
+                <div id="audioPlayerContainer" class="h-16 bg-white rounded flex items-center justify-center text-indigo-400 border border-indigo-200">
+                    Your generated audio will appear here
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="input-group">
-        <label for="modelSelect">Select a voice model</label>
-        <select id="modelSelect">
-            <option value="">Choose a voice</option>
-            <option value="e58b0d7efca34eb38d5c4985e378abcb">Trump Voice</option>
-            <option value="c127723657e84bbf8e9ced55066bd80f">Male Deep Voice</option>
-            <option value="642ed7682ec246a485b6ce5f2153033c">Brimstone (Excited)</option>
-        </select>
+
+    <div class="floating-label">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        Made by Nawaz
     </div>
-    <button id="submitBtn">Generate Speech</button>
-    <audio id="audioPlayer" controls style="display: none;"></audio>
 
     <script>
+        function setExampleText(text) {
+            document.getElementById('textInput').value = text;
+        }
+
         let isGenerating = false;
 
         async function generateSpeech() {
@@ -120,7 +113,7 @@
 
             const text = document.getElementById('textInput').value;
             const modelSelect = document.getElementById('modelSelect');
-            const audioPlayer = document.getElementById('audioPlayer');
+            const audioPlayerContainer = document.getElementById('audioPlayerContainer');
             const submitBtn = document.getElementById('submitBtn');
 
             const referenceId = modelSelect.value;
@@ -132,7 +125,13 @@
 
             isGenerating = true;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Generating...';
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Casting spell...
+            `;
 
             try {
                 const response = await fetch('/tts', {
@@ -156,30 +155,29 @@
 
                 const blob = await response.blob();
                 const audioUrl = URL.createObjectURL(blob);
-                audioPlayer.src = audioUrl;
-                audioPlayer.style.display = 'block';
+                
+                audioPlayerContainer.innerHTML = `
+                    <audio id="audioPlayer" controls autoplay>
+                        <source src="${audioUrl}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
             } catch (error) {
                 console.error('Error generating speech:', error);
                 alert(`Failed to generate speech. Error: ${error.message}`);
             } finally {
                 isGenerating = false;
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Generate Speech';
+                submitBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd" />
+                    </svg>
+                    Generate Magic Voice
+                `;
             }
         }
 
-        function setupEventListeners() {
-            const submitBtn = document.getElementById('submitBtn');
-            const audioPlayer = document.getElementById('audioPlayer');
-
-            submitBtn.addEventListener('click', generateSpeech);
-
-            // Remove any existing event listeners from the audio player
-            audioPlayer.removeEventListener('play', generateSpeech);
-            audioPlayer.removeEventListener('ended', generateSpeech);
-        }
-
-        document.addEventListener('DOMContentLoaded', setupEventListeners);
+        document.getElementById('submitBtn').addEventListener('click', generateSpeech);
     </script>
 </body>
 </html>
