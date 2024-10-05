@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +15,11 @@ app.use(express.static('public'));
 
 const API_BASE_URL = 'https://api.fish.audio';
 const API_KEY = process.env.FISH_AUDIO_API_KEY;
+
+// Add this route before your other routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.get('/models', async (req, res) => {
   try {
