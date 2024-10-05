@@ -4,12 +4,24 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
+      "src": "/tts",
+      "dest": "server.js"
+    },
+    {
+      "src": "/models",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "public/$1"
     }
   ]
 }
